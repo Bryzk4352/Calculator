@@ -10,20 +10,19 @@ import javax.swing.*;
 
 public class SwingCalc extends JFrame implements ActionListener {
 
-
-    private CalculatorEngine calculatorEng; 
+    private CalculatorEngine calculatorEng;
     JButton numbers[] = new JButton[10];
     JButton AddButton, SubtButton, DivButton, MultiButton, EqualButtonn, ModulusButton, Delete, CLR, dec;
     JTextField display;
     JPanel forDisplay, forButtons;
 
     public SwingCalc() {
-       calculatorEng = new CalculatorEngine();
+        calculatorEng = new CalculatorEngine();
         calculatorLayout();
     }
 
     private void calculatorLayout() {
-       
+
         //    layout of the calculator
         setSize(360, 550);
         setResizable(false);
@@ -31,7 +30,7 @@ public class SwingCalc extends JFrame implements ActionListener {
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
+
         forDisplay = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 10));
         add(forDisplay, BorderLayout.NORTH);
         forDisplay.setBackground(Color.BLACK);
@@ -41,7 +40,7 @@ public class SwingCalc extends JFrame implements ActionListener {
         display.setPreferredSize(new Dimension(280, 40));
         display.setFont(new Font("Arial", Font.BOLD, 24));
         forDisplay.add(display);
-         
+
         //         manipulate the number buttons
         for (int i = 0; i < numbers.length; i++) {
             numbers[i] = new JButton(String.valueOf(i));
@@ -52,12 +51,10 @@ public class SwingCalc extends JFrame implements ActionListener {
             numbers[i].setBackground(Color.WHITE);
             numbers[i].setForeground(Color.BLACK);
         }
-        
-       
+
         forButtons = new JPanel(new GridLayout(5, 4, 5, 5));
-        forButtons.setBorder(BorderFactory.createEmptyBorder());
         forButtons.setBackground(Color.BLACK);
-        forButtons.setBorder(BorderFactory.createEmptyBorder(0,7,8,7));
+        forButtons.setBorder(BorderFactory.createEmptyBorder(0, 7, 8, 7));
         add(forButtons, BorderLayout.CENTER);
 
         AddButton = new JButton("+");
@@ -74,7 +71,7 @@ public class SwingCalc extends JFrame implements ActionListener {
 
         JButton empty = new JButton("");
         empty.setEnabled(false);
-  
+
         //     manipulate the operator button
         JButton[] OperaButtons = {AddButton, SubtButton, DivButton, MultiButton, EqualButtonn, ModulusButton, Delete, CLR, dec};
         for (JButton OpeBtns : OperaButtons) {
@@ -85,7 +82,7 @@ public class SwingCalc extends JFrame implements ActionListener {
             OpeBtns.setBackground(Color.ORANGE);
             OpeBtns.setForeground(Color.BLACK);
         }
-        
+
         forButtons.add(CLR);
         forButtons.add(ModulusButton);
         forButtons.add(Delete);
@@ -109,70 +106,110 @@ public class SwingCalc extends JFrame implements ActionListener {
         forButtons.add(numbers[0]);
         forButtons.add(dec);
         forButtons.add(EqualButtonn);
-        
+
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
 
         for (int i = 0; i < numbers.length; i++) {
             if (e.getSource() == numbers[i]) {
-               handleNumbers(i);
-               
+                handleNumbers(i);
+
             }
         }
-    
-        if(display.getText().isEmpty()) return;
-        
-         if (e.getSource() == AddButton) handleOperator('+');
-       else if (e.getSource() == SubtButton) handleOperator('-');
-       else if (e.getSource() == DivButton) handleOperator('/');
-       else if(e.getSource()== ModulusButton) handleOperator('%');
-       else if (e.getSource() == MultiButton) handleOperator('*');
-       else if (e.getSource() == dec) handleDecimal();
-       else if (e.getSource() == CLR) handleClear();
-       else  if (e.getSource() == Delete) handleDelete();
-        else if (e.getSource() == EqualButtonn) handleEqual();
-         
+
+        if (display.getText().isEmpty() && e.getSource() != EqualButtonn) {
+            return;
+        }
+
+        if (e.getSource() == AddButton) {
+            handleOperator('+'); 
+        }else if (e.getSource() == SubtButton) {
+            handleOperator('-'); 
+        }else if (e.getSource() == DivButton) {
+            handleOperator('/'); 
+        }else if (e.getSource() == ModulusButton) {
+            handleOperator('%'); 
+        }else if (e.getSource() == MultiButton) {
+            handleOperator('*'); 
+        }else if (e.getSource() == dec) {
+            handleDecimal(); 
+        }else if (e.getSource() == CLR) {
+            handleClear(); 
+        }else if (e.getSource() == Delete) {
+            handleDelete(); 
+        }else if (e.getSource() == EqualButtonn) {
+            handleEqual();
+        }
+
     }
 
-    private void handleNumbers(int numbers){
-        display.setText(display.getText()+ numbers);
+    private void handleNumbers(int numbers) {
+
+        String text = display.getText();
+        if (isError(text)) {
+            display.setText("");
+           
+        }
+
+        display.setText(String.valueOf(numbers));
+
     }
-    private void handleOperator(char op){
+
+    private void handleOperator(char op) {
         calculatorEng.setNum1(Double.parseDouble(display.getText()));
         calculatorEng.setOperator(op);
         display.setText("");
-        
+
     }
 
-     private void handleClear(){
-     display.setText("");
+    private void handleClear() {
+        display.setText("");
     }
 
-    private void handleDecimal(){
-        String text= display.getText();
-        if(!text.contains(".")){
-            display.setText(text+ ".");
+    private void handleDecimal() {
+        String text = display.getText();
+        if (!text.contains(".")) {
+            display.setText(text + ".");
         }
     }
 
-    private void handleDelete(){
-        String text= display.getText();
-        if(!text.isEmpty()){
-            display.setText(text.substring(0, text.length()-1));
+    private void handleDelete() {
+        String text = display.getText();
+        if (isError(text)) {
+            display.setText("");
+            return;
+        }
+
+        if (!text.isEmpty()) {
+            display.setText(text.substring(0, text.length() - 1));
         }
     }
 
-    private void handleEqual(){
-        try{
-        calculatorEng.setNum2(Double.parseDouble(display.getText()));
-        display.setText(String.valueOf(calculatorEng.calculate()));
-        }catch(ArithmeticException ex){
+    private void handleEqual() {
+        try {
+
+            if (display.getText().isEmpty()) {
+                calculatorEng.setNum2(0);
+            } else {
+                calculatorEng.setNum2(Double.parseDouble(display.getText()));
+            }
+            display.setText(String.format("%.2f", calculatorEng.calculate()));
+        } catch (ArithmeticException ex) {
             display.setText("Error!");
+
         }
-        calculatorEng.setOperator('\0');
+        calculatorEng.setOperator('~');  //     no operator selected
     }
+
+    private boolean isError(String text) {
+        return text.equals("Error!");
+    }
+
     public static void main(String[] args) {
-        new SwingCalc().setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            new SwingCalc().setVisible(true);
+        });
     }
 }

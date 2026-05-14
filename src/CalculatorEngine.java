@@ -41,8 +41,11 @@ public class CalculatorEngine {
 
 
              case '%' -> {
-                 if(num2==0) throw new ArithmeticException("Modulo by zero!");
-                 else result = num1 % num2;
+                 if(num2 == 0)
+                    result = num1/100;
+
+                 else 
+                    result= (num2*num1)/100;
             }
 
             default -> throw new IllegalArgumentException(" No operator selected");
@@ -52,3 +55,4 @@ public class CalculatorEngine {
         return result;
     }
 }
+
